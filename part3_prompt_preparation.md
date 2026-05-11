@@ -39,11 +39,11 @@ Previously, if a user wanted to do this, they would have to implement their own 
 The current `AIOKafkaConsumer` lacks a way to look up offsets by time. You need to add this capability by interacting with the Kafka `ListOffsetRequest` protocol (v1 and above).
 
 **Requirements:**
-1.  **Public API**: Add a method `async def offsets_for_times(self, timestamps: Dict[TopicPartition, int]) -> Dict[TopicPartition, Optional[OffsetAndTimestamp]]` to the `AIOKafkaConsumer` class in `aiokafka/consumer.py`.
-2.  **Core Logic**: The logic should reside in the `Fetcher` component (`aiokafka/fetcher.py`). You must implement a way to group the requested partitions by their leader brokers and send asynchronous `ListOffsetRequest` calls.
+1.  **Public API**: Add a method `async def offsets_for_times(self, timestamps: Dict[TopicPartition, int]) -> Dict[TopicPartition, Optional[OffsetAndTimestamp]]` to the `AIOKafkaConsumer` class in [aiokafka/consumer.py](https://github.com/aio-libs/aiokafka/blob/master/aiokafka/consumer.py).
+2.  **Core Logic**: The logic should reside in the `Fetcher` component ([aiokafka/fetcher.py](https://github.com/aio-libs/aiokafka/blob/master/aiokafka/fetcher.py)). You must implement a way to group the requested partitions by their leader brokers and send asynchronous `ListOffsetRequest` calls.
 3.  **Protocol Versioning**: Ensure that you use the correct protocol version. Timestamps in `ListOffsetRequest` were introduced in version 1. Handle cases where the broker might only support version 0.
-4.  **Data Structures**: Use or extend the `OffsetAndTimestamp` namedtuple in `aiokafka/structs.py` to represent the return values.
-5.  **Error Handling**: If a lookup fails for a specific partition due to a leader change, the consumer should refresh metadata and potentially retry, or return an appropriate error state.
+4.  **Data Structures**: Use or extend the `OffsetAndTimestamp` namedtuple in [aiokafka/structs.py](https://github.com/aio-libs/aiokafka/blob/master/aiokafka/structs.py) to represent the return values.
+5.  **Error Handling**: If a lookup fails for a specific partition due to a leader change, the consumer should refresh metadata and potentially retry, or return an appropriate error state in [aiokafka/errors.py](https://github.com/aio-libs/aiokafka/blob/master/aiokafka/errors.py).
 
 **Acceptance Criteria to Consider:**
 - Correctly mapping timestamps to offsets via the broker index.
